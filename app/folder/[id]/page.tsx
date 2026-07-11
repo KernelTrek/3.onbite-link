@@ -6,51 +6,12 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import LinkGrid from '@/components/LinkGrid';
 
-const mockLinks = [
-  {
-    id: '1',
-    title: 'GitHub',
-    description: 'The world\'s leading software development platform',
-    url: 'https://github.com',
-    favicon: 'https://github.com/favicon.ico',
-    folder: '개발',
-  },
-  {
-    id: '2',
-    title: 'Next.js',
-    description: 'The React Framework for Production',
-    url: 'https://nextjs.org',
-    favicon: 'https://nextjs.org/favicon.ico',
-    folder: '개발',
-  },
-  {
-    id: '3',
-    title: 'Figma',
-    description: 'The collaborative interface design tool',
-    url: 'https://figma.com',
-    favicon: 'https://figma.com/favicon.ico',
-    folder: '디자인',
-  },
-  {
-    id: '4',
-    title: 'CSS-Tricks',
-    description: 'Daily articles about CSS, HTML, JavaScript, and web design',
-    url: 'https://css-tricks.com',
-    favicon: 'https://css-tricks.com/favicon.ico',
-    folder: '디자인',
-  },
-];
-
 export default function FolderPage() {
   const params = useParams();
   const id = params.id as string;
   const { folders } = useFolders();
 
   const folder = folders.find((f) => f.id === id);
-  const folderLinks = mockLinks.filter((link) => {
-    const folderName = folders.find((f) => f.id === id)?.name;
-    return link.folder === folderName;
-  });
 
   if (!folder) {
     return (
@@ -83,11 +44,8 @@ export default function FolderPage() {
             <h2 className="text-2xl font-bold text-[var(--text)]">
               {folder.name}
             </h2>
-            <p className="text-[var(--text-sub)] mt-1 text-sm">
-              {folderLinks.length}개의 링크
-            </p>
           </div>
-          <LinkGrid links={folderLinks} />
+          <LinkGrid folderName={folder.name} />
         </div>
       </div>
     </div>

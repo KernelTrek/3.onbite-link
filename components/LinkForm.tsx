@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLinks } from '@/contexts/LinksContext';
 
 interface Folder {
   id: string;
@@ -12,26 +14,74 @@ interface LinkFormProps {
 }
 
 export default function LinkForm({ folders }: LinkFormProps) {
+  const router = useRouter();
+  const { addLink } = useLinks();
+
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [image, setImage] = useState('');
   const [folder, setFolder] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isExtractingOG, setIsExtractingOG] = useState(false);
+  const [ogExtracted, setOgExtracted] = useState(false);
+
+  const handleExtractOG = async () => {
+    if (!url.trim()) return;
+
+    setIsExtractingOG(true);
+    try {
+      const response = await fetch('/api/og', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to extract OG data');
+      }
+
+      const data = await response.json();
+      setTitle(data.title || '');
+      setDescription(data.description || '');
+      setImage(data.image || '');
+      setOgExtracted(true);
+    } catch (error) {
+      console.error('Failed to extract OG data:', error);
+      alert('링크 정보를 불러올 수 없습니다. 수동으로 입력해주세요.');
+    } finally {
+      setIsExtractingOG(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // TODO: Implement API call to save link
-      console.log({ url, title, description, folder });
+      const newLink = {
+        title: title || new URL(url).hostname,
+        description,
+        url,
+        image,
+        folder: folders.find(f => f.id === folder)?.name || '',
+      };
+
+      addLink(newLink);
+
       // Reset form after successful save
       setUrl('');
       setTitle('');
       setDescription('');
+      setImage('');
       setFolder('');
+      setOgExtracted(false);
+
+      // Navigate to home
+      router.push('/');
     } catch (error) {
       console.error('Failed to save link:', error);
+      alert('링크 저장에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -45,26 +95,68 @@ export default function LinkForm({ folders }: LinkFormProps) {
           <label htmlFor="url" className="block text-base font-bold text-[var(--text)] mb-2">
             링크 주소
           </label>
-          <input
-            id="url"
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com"
-            required
-            className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all"
-            style={{
-              boxShadow: '0 0 0 2px transparent',
-              '--webkit-autofill': 'none',
-            } as React.CSSProperties}
-            onFocus={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
-            }}
-          />
+          <div className="flex gap-2">
+            <input
+              id="url"
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              required
+              className="flex-1 px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all"
+              style={{
+                boxShadow: '0 0 0 2px transparent',
+                '--webkit-autofill': 'none',
+              } as React.CSSProperties}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+              }}
+              disabled={ogExtracted}
+            />
+            {!ogExtracted && (
+              <button
+                type="button"
+                onClick={handleExtractOG}
+                disabled={!url.trim() || isExtractingOG}
+                className="px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isExtractingOG ? '로딩중...' : '확인'}
+              </button>
+            )}
+            {ogExtracted && (
+              <button
+                type="button"
+                onClick={() => {
+                  setUrl('');
+                  setTitle('');
+                  setDescription('');
+                  setImage('');
+                  setOgExtracted(false);
+                }}
+                className="px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold hover:bg-white transition-all whitespace-nowrap"
+              >
+                변경
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* OG Preview */}
+        {ogExtracted && image && (
+          <div className="rounded-xl border-2 border-[var(--accent)]/20 overflow-hidden">
+            <img
+              src={image}
+              alt="미리보기"
+              className="w-full h-48 object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
 
         {/* Title Input */}
         <div>

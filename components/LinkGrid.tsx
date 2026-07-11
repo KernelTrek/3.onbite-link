@@ -1,31 +1,35 @@
+'use client';
+
+import { useMemo } from 'react';
+import { useLinks } from '@/contexts/LinksContext';
 import LinkCard from "./LinkCard";
 
-interface Link {
-  id: string;
-  title: string;
-  description?: string;
-  url: string;
-  favicon?: string;
-  folder?: string;
-}
-
 interface LinkGridProps {
-  links?: Link[];
+  folderName?: string;
 }
 
-export default function LinkGrid({ links = [] }: LinkGridProps) {
+export default function LinkGrid({ folderName }: LinkGridProps) {
+  const { links } = useLinks();
+
+  const filteredLinks = useMemo(() => {
+    if (!folderName) return links;
+    return links.filter(link => link.folder === folderName);
+  }, [links, folderName]);
+
   return (
     <section className="flex-1 p-6" style={{ marginTop: '56px' }}>
-      {links.length > 0 ? (
+      {filteredLinks.length > 0 ? (
         <div className="max-w-3xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {links.map((link) => (
+            {filteredLinks.map((link) => (
               <LinkCard
                 key={link.id}
+                id={link.id}
                 title={link.title}
                 description={link.description}
                 url={link.url}
                 favicon={link.favicon}
+                image={link.image}
                 folder={link.folder}
               />
             ))}
