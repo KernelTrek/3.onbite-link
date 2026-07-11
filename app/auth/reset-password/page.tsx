@@ -16,14 +16,19 @@ export default function ResetPasswordPage() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // URL hash에서 access token 확인
-    const hash = window.location.hash;
-    if (hash.includes('access_token')) {
-      setIsReady(true);
-    } else {
-      setToast({ message: '유효한 리셋 링크가 아닙니다.', type: 'error' });
-      setTimeout(() => router.push('/auth/login'), 2000);
-    }
+    const handleSessionFromUrl = async () => {
+      const hash = window.location.hash;
+      if (hash.includes('access_token') && hash.includes('type=recovery')) {
+        // Supabase 클라이언트가 자동으로 세션을 설정하도록 대기
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setIsReady(true);
+      } else {
+        setToast({ message: '유효한 리셋 링크가 아닙니다.', type: 'error' });
+        setTimeout(() => router.push('/auth/login'), 2000);
+      }
+    };
+
+    handleSessionFromUrl();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
