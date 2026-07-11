@@ -45,7 +45,7 @@ export default function FolderPage() {
               {folder.name}
             </h2>
           </div>
-          <LinkGrid folderName={folder.name} />
+          <LinkGrid folderId={id} />
         </div>
       </div>
     </div>

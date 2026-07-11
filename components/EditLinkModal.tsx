@@ -7,48 +7,55 @@ interface EditLinkModalProps {
   isOpen: boolean;
   linkTitle: string;
   linkDescription: string;
-  linkFolder: string;
+  linkFolderId: string;
   onClose: () => void;
-  onSave: (data: { title: string; description: string; folder: string }) => void;
+  onSave: (data: { title: string; description: string; folder_id: string }) => Promise<void>;
 }
 
 export default function EditLinkModal({
   isOpen,
   linkTitle,
   linkDescription,
-  linkFolder,
+  linkFolderId,
   onClose,
   onSave,
 }: EditLinkModalProps) {
   const { folders } = useFolders();
   const [title, setTitle] = useState(linkTitle);
   const [description, setDescription] = useState(linkDescription);
-  const [folder, setFolder] = useState(linkFolder);
+  const [folderId, setFolderId] = useState(linkFolderId);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setTitle(linkTitle);
       setDescription(linkDescription);
-      setFolder(linkFolder);
+      setFolderId(linkFolderId);
     }
-  }, [isOpen, linkTitle, linkDescription, linkFolder]);
+  }, [isOpen, linkTitle, linkDescription, linkFolderId]);
 
-  const handleSave = () => {
-    if (title.trim()) {
-      onSave({
-        title: title.trim(),
-        description: description.trim(),
-        folder,
-      });
-      onClose();
+  const handleSave = async () => {
+    if (title.trim() && !isSaving) {
+      setIsSaving(true);
+      try {
+        await onSave({
+          title: title.trim(),
+          description: description.trim(),
+          folder_id: folderId,
+        });
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
   const handleCancel = () => {
-    setTitle(linkTitle);
-    setDescription(linkDescription);
-    setFolder(linkFolder);
-    onClose();
+    if (!isSaving) {
+      setTitle(linkTitle);
+      setDescription(linkDescription);
+      setFolderId(linkFolderId);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -71,7 +78,8 @@ export default function EditLinkModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="링크 제목"
-            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all"
+            disabled={isSaving}
+            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all disabled:opacity-50"
             onFocus={(e) => {
               e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
             }}
@@ -91,7 +99,8 @@ export default function EditLinkModal({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="링크 설명"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all resize-none"
+            disabled={isSaving}
+            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all resize-none disabled:opacity-50"
             onFocus={(e) => {
               e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
             }}
@@ -107,9 +116,10 @@ export default function EditLinkModal({
             폴더
           </label>
           <select
-            value={folder}
-            onChange={(e) => setFolder(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] focus:outline-none focus:bg-[var(--bg-card)] transition-all appearance-none"
+            value={folderId}
+            onChange={(e) => setFolderId(e.target.value)}
+            disabled={isSaving}
+            className="w-full px-4 py-3 rounded-xl bg-[#F4F4F4] text-[var(--text)] focus:outline-none focus:bg-[var(--bg-card)] transition-all appearance-none disabled:opacity-50"
             onFocus={(e) => {
               e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
             }}
@@ -117,8 +127,9 @@ export default function EditLinkModal({
               e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
             }}
           >
+            <option value="">폴더를 선택하세요</option>
             {folders.map((f) => (
-              <option key={f.id} value={f.name}>
+              <option key={f.id} value={f.id}>
                 {f.name}
               </option>
             ))}
@@ -129,16 +140,17 @@ export default function EditLinkModal({
         <div className="flex gap-3">
           <button
             onClick={handleCancel}
-            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white"
+            disabled={isSaving}
+            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            disabled={!title.trim()}
+            disabled={!title.trim() || isSaving}
             className="flex-1 px-6 py-3 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            저장
+            {isSaving ? '저장 중...' : '저장'}
           </button>
         </div>
       </div>

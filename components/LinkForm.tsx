@@ -63,11 +63,11 @@ export default function LinkForm({ folders }: LinkFormProps) {
         title: title || new URL(url).hostname,
         description,
         url,
-        image,
-        folder: folders.find(f => f.id === folder)?.name || '',
+        thumbnail_url: image,
+        folder_id: folder,
       };
 
-      addLink(newLink);
+      await addLink(newLink);
 
       // Reset form after successful save
       setUrl('');

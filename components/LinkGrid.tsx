@@ -5,16 +5,16 @@ import { useLinks } from '@/contexts/LinksContext';
 import LinkCard from "./LinkCard";
 
 interface LinkGridProps {
-  folderName?: string;
+  folderId?: string;
 }
 
-export default function LinkGrid({ folderName }: LinkGridProps) {
+export default function LinkGrid({ folderId }: LinkGridProps) {
   const { links } = useLinks();
 
   const filteredLinks = useMemo(() => {
-    if (!folderName) return links;
-    return links.filter(link => link.folder === folderName);
-  }, [links, folderName]);
+    if (!folderId) return links;
+    return links.filter(link => link.folder_id === folderId);
+  }, [links, folderId]);
 
   return (
     <section className="flex-1 p-6" style={{ marginTop: '56px' }}>
@@ -28,9 +28,9 @@ export default function LinkGrid({ folderName }: LinkGridProps) {
                 title={link.title}
                 description={link.description}
                 url={link.url}
-                favicon={link.favicon}
-                image={link.image}
-                folder={link.folder}
+                favicon={`https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}&sz=128`}
+                image={link.thumbnail_url}
+                folder_id={link.folder_id}
               />
             ))}
           </div>

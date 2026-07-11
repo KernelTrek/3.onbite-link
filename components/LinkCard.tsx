@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLinks } from '@/contexts/LinksContext';
+import { useFolders } from '@/contexts/FoldersContext';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import EditLinkModal from './EditLinkModal';
 
@@ -12,7 +13,8 @@ interface LinkCardProps {
   url: string;
   favicon?: string;
   image?: string;
-  folder?: string;
+  folder_id?: string;
+  folderName?: string;
 }
 
 export default function LinkCard({
@@ -22,9 +24,11 @@ export default function LinkCard({
   url,
   favicon,
   image,
-  folder,
+  folder_id,
+  folderName,
 }: LinkCardProps) {
   const { deleteLink, updateLink } = useLinks();
+  const { folders } = useFolders();
   const [isHovered, setIsHovered] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -41,17 +45,18 @@ export default function LinkCard({
     setIsEditModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    deleteLink(id);
+  const handleConfirmDelete = async () => {
+    await deleteLink(id);
     setIsDeleteModalOpen(false);
   };
 
-  const handleConfirmEdit = (data: { title: string; description: string; folder: string }) => {
-    updateLink(id, {
+  const handleConfirmEdit = async (data: { title: string; description: string; folder_id: string }) => {
+    await updateLink(id, {
       title: data.title,
       description: data.description,
-      folder: data.folder,
+      folder_id: data.folder_id,
     });
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -159,9 +164,9 @@ export default function LinkCard({
             <p className="text-xs text-[var(--text-sub)] truncate mb-2">
               {url}
             </p>
-            {folder && (
+            {folder_id && (
               <div className="inline-block text-xs bg-[#E8F3FF] text-[var(--accent)] px-2.5 py-1 rounded-lg font-medium">
-                {folder}
+                {folderName || folders.find(f => f.id === folder_id)?.name}
               </div>
             )}
           </div>
@@ -173,7 +178,7 @@ export default function LinkCard({
         isOpen={isEditModalOpen}
         linkTitle={title}
         linkDescription={description || ''}
-        linkFolder={folder || ''}
+        linkFolderId={folder_id || ''}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleConfirmEdit}
       />
