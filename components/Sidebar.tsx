@@ -83,7 +83,7 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
                     <Link
                       href={`/folder/${folder.id}`}
                       className={`flex items-center justify-between w-full text-left px-4 py-2.5 rounded-xl transition-all ${
-                        currentFolderId === folder.id
+                        currentFolderId === String(folder.id)
                           ? 'bg-[var(--accent)] text-white'
                           : 'text-[var(--text)] hover:bg-white'
                       }`}
@@ -94,7 +94,7 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
                           <button
                             onClick={(e) => handleEditClick(e, folder.id, folder.name)}
                             className={`p-1.5 rounded-lg transition-all ${
-                              currentFolderId === folder.id
+                              currentFolderId === String(folder.id)
                                 ? 'hover:bg-white/20'
                                 : 'hover:bg-[var(--accent)]/10'
                             }`}
@@ -118,7 +118,7 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
                           <button
                             onClick={(e) => handleDeleteClick(e, folder.id, folder.name)}
                             className={`p-1.5 rounded-lg transition-all ${
-                              currentFolderId === folder.id
+                              currentFolderId === String(folder.id)
                                 ? 'hover:bg-white/20'
                                 : 'hover:bg-[var(--error)]/10'
                             }`}

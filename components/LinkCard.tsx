@@ -166,7 +166,7 @@ export default function LinkCard({
             </p>
             {folder_id && (
               <div className="inline-block text-xs bg-[#E8F3FF] text-[var(--accent)] px-2.5 py-1 rounded-lg font-medium">
-                {folderName || folders.find(f => f.id === folder_id)?.name}
+                {folderName || folders.find(f => String(f.id) === folder_id)?.name}
               </div>
             )}
           </div>

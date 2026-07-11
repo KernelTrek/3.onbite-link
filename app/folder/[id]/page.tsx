@@ -11,7 +11,7 @@ export default function FolderPage() {
   const id = params.id as string;
   const { folders } = useFolders();
 
-  const folder = folders.find((f) => f.id === id);
+  const folder = folders.find((f) => String(f.id) === id);
 
   if (!folder) {
     return (
