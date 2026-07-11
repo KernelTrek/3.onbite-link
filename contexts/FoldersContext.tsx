@@ -10,6 +10,7 @@ export interface Folder {
 interface FoldersContextType {
   folders: Folder[];
   addFolder: (folderName: string) => void;
+  deleteFolder: (folderId: string) => void;
 }
 
 const FoldersContext = createContext<FoldersContextType | undefined>(undefined);
@@ -23,14 +24,18 @@ export function FoldersProvider({ children }: { children: ReactNode }) {
 
   const addFolder = (folderName: string) => {
     const newFolder = {
-      id: String(folders.length + 1),
+      id: String(Math.max(...folders.map(f => parseInt(f.id)), 0) + 1),
       name: folderName,
     };
     setFolders([...folders, newFolder]);
   };
 
+  const deleteFolder = (folderId: string) => {
+    setFolders(folders.filter(f => f.id !== folderId));
+  };
+
   return (
-    <FoldersContext.Provider value={{ folders, addFolder }}>
+    <FoldersContext.Provider value={{ folders, addFolder, deleteFolder }}>
       {children}
     </FoldersContext.Provider>
   );
