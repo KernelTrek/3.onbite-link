@@ -7,6 +7,9 @@ export interface Folder {
   id: string;
   name: string;
   created_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  updated_at?: string;
 }
 
 interface FoldersContextType {
@@ -95,13 +98,16 @@ export function FoldersProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await supabase
         .from('folders')
-        .update({ name: newName })
+        .update({
+          name: newName,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', folderId);
 
       if (error) throw error;
 
       setFolders(folders.map(f =>
-        f.id === folderId ? { ...f, name: newName } : f
+        f.id === folderId ? { ...f, name: newName, updated_at: new Date().toISOString() } : f
       ));
     } catch (error) {
       console.error('Failed to update folder:', error);

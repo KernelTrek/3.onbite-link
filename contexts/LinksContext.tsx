@@ -11,11 +11,14 @@ export interface Link {
   thumbnail_url?: string;
   folder_id?: string;
   created_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  updated_at?: string;
 }
 
 interface LinksContextType {
   links: Link[];
-  addLink: (link: Omit<Link, 'id' | 'created_at'>) => Promise<void>;
+  addLink: (link: Omit<Link, 'id' | 'created_at' | 'created_by' | 'updated_by' | 'updated_at'>) => Promise<void>;
   deleteLink: (linkId: string) => Promise<void>;
   updateLink: (linkId: string, link: Partial<Link>) => Promise<void>;
   isLoading: boolean;
@@ -49,7 +52,7 @@ export function LinksProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addLink = async (link: Omit<Link, 'id' | 'created_at'>) => {
+  const addLink = async (link: Omit<Link, 'id' | 'created_at' | 'created_by' | 'updated_by' | 'updated_at'>) => {
     const duplicateLink = links.some(l => l.url === link.url);
     if (duplicateLink) {
       alert('이미 저장된 링크입니다.');
@@ -101,6 +104,7 @@ export function LinksProvider({ children }: { children: ReactNode }) {
       if (updatedLink.title !== undefined) updateData.title = updatedLink.title;
       if (updatedLink.description !== undefined) updateData.description = updatedLink.description;
       if (updatedLink.folder_id !== undefined) updateData.folder_id = updatedLink.folder_id ? parseInt(updatedLink.folder_id) : null;
+      updateData.updated_at = new Date().toISOString();
 
       const { error } = await supabase
         .from('links')
@@ -110,7 +114,7 @@ export function LinksProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       setLinks(links.map(l =>
-        l.id === linkId ? { ...l, ...updatedLink } : l
+        l.id === linkId ? { ...l, ...updatedLink, updated_at: updateData.updated_at } : l
       ));
     } catch (error) {
       console.error('Failed to update link:', error);
