@@ -6,7 +6,7 @@ interface EditFolderModalProps {
   isOpen: boolean;
   folderName: string;
   onClose: () => void;
-  onSave: (newName: string) => void;
+  onSave: (newName: string) => Promise<void>;
 }
 
 export default function EditFolderModal({
@@ -16,21 +16,29 @@ export default function EditFolderModal({
   onSave,
 }: EditFolderModalProps) {
   const [inputValue, setInputValue] = useState(folderName);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setInputValue(folderName);
   }, [folderName, isOpen]);
 
-  const handleSave = () => {
-    if (inputValue.trim() && inputValue !== folderName) {
-      onSave(inputValue.trim());
-      onClose();
+  const handleSave = async () => {
+    if (inputValue.trim() && inputValue !== folderName && !isSaving) {
+      setIsSaving(true);
+      try {
+        await onSave(inputValue.trim());
+        onClose();
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
   const handleCancel = () => {
-    setInputValue(folderName);
-    onClose();
+    if (!isSaving) {
+      setInputValue(folderName);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -48,11 +56,11 @@ export default function EditFolderModal({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="폴더 이름을 입력하세요"
-          className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all mb-6"
+          className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all mb-6 disabled:opacity-50"
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isSaving) {
               handleSave();
-            } else if (e.key === 'Escape') {
+            } else if (e.key === 'Escape' && !isSaving) {
               handleCancel();
             }
           }}
@@ -62,6 +70,7 @@ export default function EditFolderModal({
           onBlur={(e) => {
             e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
           }}
+          disabled={isSaving}
           autoFocus
           maxLength={30}
         />
@@ -69,16 +78,17 @@ export default function EditFolderModal({
         <div className="flex gap-3">
           <button
             onClick={handleCancel}
-            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white"
+            disabled={isSaving}
+            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            disabled={!inputValue.trim() || inputValue === folderName}
+            disabled={!inputValue.trim() || inputValue === folderName || isSaving}
             className="flex-1 px-6 py-3 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            저장
+            {isSaving ? '저장 중...' : '저장'}
           </button>
         </div>
       </div>

@@ -5,22 +5,30 @@ import { useState } from 'react';
 interface FolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (folderName: string) => void;
+  onSave: (folderName: string) => Promise<void>;
 }
 
 export default function FolderModal({ isOpen, onClose, onSave }: FolderModalProps) {
   const [folderName, setFolderName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    if (folderName.trim()) {
-      onSave(folderName.trim());
-      setFolderName('');
+  const handleSave = async () => {
+    if (folderName.trim() && !isSaving) {
+      setIsSaving(true);
+      try {
+        await onSave(folderName.trim());
+        setFolderName('');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
   const handleCancel = () => {
-    setFolderName('');
-    onClose();
+    if (!isSaving) {
+      setFolderName('');
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -56,16 +64,17 @@ export default function FolderModal({ isOpen, onClose, onSave }: FolderModalProp
         <div className="flex gap-3">
           <button
             onClick={handleCancel}
-            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white"
+            disabled={isSaving}
+            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
             onClick={handleSave}
-            disabled={!folderName.trim()}
+            disabled={!folderName.trim() || isSaving}
             className="flex-1 px-6 py-3 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            저장
+            {isSaving ? '저장 중...' : '저장'}
           </button>
         </div>
       </div>

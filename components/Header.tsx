@@ -8,10 +8,16 @@ import FolderModal from './FolderModal';
 export default function Header() {
   const { addFolder } = useFolders();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveFolder = (folderName: string) => {
-    addFolder(folderName);
-    setIsModalOpen(false);
+  const handleSaveFolder = async (folderName: string) => {
+    setIsSaving(true);
+    try {
+      await addFolder(folderName);
+      setIsModalOpen(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

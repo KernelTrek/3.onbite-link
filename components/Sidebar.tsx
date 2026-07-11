@@ -36,17 +36,17 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
     setEditModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (folderToDelete) {
-      deleteFolder(folderToDelete.id);
+      await deleteFolder(folderToDelete.id);
       setDeleteModalOpen(false);
       setFolderToDelete(null);
     }
   };
 
-  const handleConfirmEdit = (newName: string) => {
+  const handleConfirmEdit = async (newName: string) => {
     if (folderToEdit) {
-      updateFolder(folderToEdit.id, newName);
+      await updateFolder(folderToEdit.id, newName);
       setEditModalOpen(false);
       setFolderToEdit(null);
     }

@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+
 interface DeleteConfirmModalProps {
   isOpen: boolean;
   folderName: string;
   type?: 'folder' | 'link';
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   onCancel: () => void;
 }
 
@@ -15,10 +17,21 @@ export default function DeleteConfirmModal({
   onConfirm,
   onCancel,
 }: DeleteConfirmModalProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!isOpen) return null;
 
   const itemType = type === 'folder' ? '폴더' : '링크';
   const title = `${itemType} 삭제`;
+
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await onConfirm();
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -38,15 +51,17 @@ export default function DeleteConfirmModal({
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white"
+            disabled={isDeleting}
+            className="flex-1 px-6 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
           <button
-            onClick={onConfirm}
-            className="flex-1 px-6 py-3 bg-[var(--error)] text-white rounded-xl font-bold transition-all hover:opacity-90"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+            className="flex-1 px-6 py-3 bg-[var(--error)] text-white rounded-xl font-bold transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            삭제
+            {isDeleting ? '삭제 중...' : '삭제'}
           </button>
         </div>
       </div>
