@@ -28,14 +28,38 @@ export function FoldersProvider({ children }: { children: ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    fetchFolders();
+    const setupAuthListener = async () => {
+      // 현재 사용자 확인
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        await fetchFolders(data.user.id);
+      }
+
+      // 사용자 변경 감시
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            await fetchFolders(session.user.id);
+          } else {
+            setFolders([]);
+            setIsLoading(false);
+          }
+        }
+      );
+
+      return () => subscription?.unsubscribe();
+    };
+
+    setupAuthListener();
   }, []);
 
-  const fetchFolders = async () => {
+  const fetchFolders = async (userId: string) => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('folders')
         .select('*')
+        .eq('created_by', userId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;

@@ -32,14 +32,38 @@ export function LinksProvider({ children }: { children: ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    fetchLinks();
+    const setupAuthListener = async () => {
+      // 현재 사용자 확인
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        await fetchLinks(data.user.id);
+      }
+
+      // 사용자 변경 감시
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            await fetchLinks(session.user.id);
+          } else {
+            setLinks([]);
+            setIsLoading(false);
+          }
+        }
+      );
+
+      return () => subscription?.unsubscribe();
+    };
+
+    setupAuthListener();
   }, []);
 
-  const fetchLinks = async () => {
+  const fetchLinks = async (userId: string) => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('links')
         .select('*')
+        .eq('created_by', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
