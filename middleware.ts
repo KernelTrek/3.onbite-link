@@ -9,7 +9,12 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthPage = pathname.startsWith('/auth');
-  const isPublicPage = ['/auth/login', '/auth/signup'].includes(pathname);
+  const isPublicPage = [
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+  ].includes(pathname);
 
   // 로그인되지 않은 사용자
   if (!user) {
@@ -23,8 +28,8 @@ export async function middleware(request: NextRequest) {
 
   // 로그인된 사용자
   if (user) {
-    // 인증 페이지로의 접근을 홈페이지로 리다이렉트
-    if (isAuthPage) {
+    // 로그인/회원가입 페이지로의 접근을 홈페이지로 리다이렉트
+    if (isAuthPage && ['/auth/login', '/auth/signup'].includes(pathname)) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
