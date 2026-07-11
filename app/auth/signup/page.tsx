@@ -1,16 +1,55 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Toast from '@/components/Toast';
+import { createClient } from '@/utils/supabase/client';
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isFormValid = email.trim() && password && confirmPassword;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 회원가입 기능은 구현하지 않음
+
+    if (password !== confirmPassword) {
+      setToast({ message: '비밀번호가 일치하지 않습니다.', type: 'error' });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) {
+        setToast({ message: error.message, type: 'error' });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        setToast({ message: '회원가입 성공했습니다!', type: 'success' });
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
+      }
+    } catch (error) {
+      setToast({ message: '회원가입 중 오류가 발생했습니다.', type: 'error' });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,12 +70,13 @@ export default function SignUpPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="이메일"
               required
-              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all"
+              disabled={isLoading}
+              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
               style={{
                 boxShadow: '0 0 0 2px transparent',
               } as React.CSSProperties}
               onFocus={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+                if (!isLoading) e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
@@ -52,12 +92,13 @@ export default function SignUpPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호"
               required
-              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all"
+              disabled={isLoading}
+              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
               style={{
                 boxShadow: '0 0 0 2px transparent',
               } as React.CSSProperties}
               onFocus={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+                if (!isLoading) e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
@@ -73,12 +114,13 @@ export default function SignUpPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="비밀번호 확인"
               required
-              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all"
+              disabled={isLoading}
+              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
               style={{
                 boxShadow: '0 0 0 2px transparent',
               } as React.CSSProperties}
               onFocus={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+                if (!isLoading) e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
@@ -89,9 +131,10 @@ export default function SignUpPage() {
           {/* Sign Up Button */}
           <button
             type="submit"
-            className="w-full px-5 py-3.5 bg-[var(--accent)] text-white rounded-xl font-bold hover:opacity-90 transition-all mt-8"
+            disabled={!isFormValid || isLoading}
+            className="w-full px-5 py-3.5 bg-[var(--accent)] text-white rounded-xl font-bold hover:opacity-90 transition-all mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            회원가입
+            {isLoading ? '가입 중...' : '회원가입'}
           </button>
         </form>
 
@@ -108,6 +151,15 @@ export default function SignUpPage() {
           </p>
         </div>
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
