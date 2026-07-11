@@ -11,11 +11,20 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = pathname.startsWith('/auth');
 
   // 항상 접근 가능한 공개 페이지
-  const publicPages = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password'];
+  const publicPages = [
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+    '/auth/callback',
+  ];
   const isPublicPage = publicPages.includes(pathname);
 
-  // 비밀번호 리셋 관련 페이지는 항상 접근 허용
-  const isPasswordResetPage = pathname === '/auth/forgot-password' || pathname === '/auth/reset-password';
+  // 비밀번호 리셋 관련 페이지와 인증 콜백은 항상 접근 허용
+  const isPasswordResetPage =
+    pathname === '/auth/forgot-password' ||
+    pathname === '/auth/reset-password' ||
+    pathname === '/auth/callback';
 
   // 비밀번호 리셋 페이지는 항상 접근 가능
   if (isPasswordResetPage) {
