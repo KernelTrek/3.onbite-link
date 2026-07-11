@@ -5,19 +5,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFolders } from '@/contexts/FoldersContext';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import EditFolderModal from './EditFolderModal';
 
 interface SidebarProps {
   currentFolderId?: string;
 }
 
 export default function Sidebar({ currentFolderId }: SidebarProps) {
-  const { folders, deleteFolder } = useFolders();
+  const { folders, deleteFolder, updateFolder } = useFolders();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
   const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [folderToEdit, setFolderToEdit] = useState<{ id: string; name: string } | null>(null);
 
   const handleDeleteClick = (e: React.MouseEvent, folderId: string, folderName: string) => {
     e.preventDefault();
@@ -26,11 +29,26 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
     setDeleteModalOpen(true);
   };
 
+  const handleEditClick = (e: React.MouseEvent, folderId: string, folderName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFolderToEdit({ id: folderId, name: folderName });
+    setEditModalOpen(true);
+  };
+
   const handleConfirmDelete = () => {
     if (folderToDelete) {
       deleteFolder(folderToDelete.id);
       setDeleteModalOpen(false);
       setFolderToDelete(null);
+    }
+  };
+
+  const handleConfirmEdit = (newName: string) => {
+    if (folderToEdit) {
+      updateFolder(folderToEdit.id, newName);
+      setEditModalOpen(false);
+      setFolderToEdit(null);
     }
   };
 
@@ -72,32 +90,58 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
                     >
                       <span>{folder.name}</span>
                       {hoveredFolderId === folder.id && (
-                        <button
-                          onClick={(e) => handleDeleteClick(e, folder.id, folder.name)}
-                          className={`flex-shrink-0 ml-2 p-1.5 rounded-lg transition-all ${
-                            currentFolderId === folder.id
-                              ? 'hover:bg-white/20'
-                              : 'hover:bg-[var(--error)]/10'
-                          }`}
-                          title="삭제"
-                        >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className={currentFolderId === folder.id ? 'text-white' : 'text-[var(--error)]'}
+                        <div className="flex-shrink-0 ml-2 flex gap-1">
+                          <button
+                            onClick={(e) => handleEditClick(e, folder.id, folder.name)}
+                            className={`p-1.5 rounded-lg transition-all ${
+                              currentFolderId === folder.id
+                                ? 'hover:bg-white/20'
+                                : 'hover:bg-[var(--accent)]/10'
+                            }`}
+                            title="수정"
                           >
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            <line x1="10" y1="11" x2="10" y2="17" />
-                            <line x1="14" y1="11" x2="14" y2="17" />
-                          </svg>
-                        </button>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={currentFolderId === folder.id ? 'text-white' : 'text-[var(--accent)]'}
+                            >
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19H4v-3L16.5 3.5z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteClick(e, folder.id, folder.name)}
+                            className={`p-1.5 rounded-lg transition-all ${
+                              currentFolderId === folder.id
+                                ? 'hover:bg-white/20'
+                                : 'hover:bg-[var(--error)]/10'
+                            }`}
+                            title="삭제"
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={currentFolderId === folder.id ? 'text-white' : 'text-[var(--error)]'}
+                            >
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              <line x1="10" y1="11" x2="10" y2="17" />
+                              <line x1="14" y1="11" x2="14" y2="17" />
+                            </svg>
+                          </button>
+                        </div>
                       )}
                     </Link>
                   </div>
@@ -121,6 +165,18 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
             setDeleteModalOpen(false);
             setFolderToDelete(null);
           }}
+        />
+      )}
+
+      {folderToEdit && (
+        <EditFolderModal
+          isOpen={editModalOpen}
+          folderName={folderToEdit.name}
+          onClose={() => {
+            setEditModalOpen(false);
+            setFolderToEdit(null);
+          }}
+          onSave={handleConfirmEdit}
         />
       )}
     </>
