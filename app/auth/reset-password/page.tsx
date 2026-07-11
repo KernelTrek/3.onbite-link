@@ -1,61 +1,71 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Toast from '@/components/Toast';
 import { createClient } from '@/utils/supabase/client';
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const isFormValid = email.trim() && password;
-
-  const getErrorMessage = (errorCode: string): string => {
-    const messages: { [key: string]: string } = {
-      'invalid_credentials': '이메일 또는 비밀번호가 올바르지 않습니다.',
-      'email_not_confirmed': '이메일 인증을 완료해주세요.',
-      'user_not_found': '등록되지 않은 이메일입니다.',
-      'invalid_grant': '이메일 또는 비밀번호가 올바르지 않습니다.',
-    };
-    return messages[errorCode] || '로그인에 실패했습니다. 다시 시도해주세요.';
-  };
+  useEffect(() => {
+    // URL hash에서 access token 확인
+    const hash = window.location.hash;
+    if (hash.includes('access_token')) {
+      setIsReady(true);
+    } else {
+      setToast({ message: '유효한 리셋 링크가 아닙니다.', type: 'error' });
+      setTimeout(() => router.push('/auth/login'), 2000);
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password !== confirmPassword) {
+      setToast({ message: '비밀번호가 일치하지 않습니다.', type: 'error' });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+      const { error } = await supabase.auth.updateUser({
         password,
       });
 
       if (error) {
-        const errorMessage = getErrorMessage(error.code || '');
-        setToast({ message: errorMessage, type: 'error' });
+        setToast({ message: error.message, type: 'error' });
         setIsLoading(false);
         return;
       }
 
-      if (data.user) {
-        setToast({ message: '로그인 성공했습니다!', type: 'success' });
-        setTimeout(() => {
-          router.push('/');
-        }, 1500);
-      }
+      setToast({ message: '비밀번호가 변경되었습니다.', type: 'success' });
+      setTimeout(() => {
+        router.push('/auth/login');
+      }, 1500);
     } catch (error) {
-      setToast({ message: '로그인 중 오류가 발생했습니다.', type: 'error' });
+      setToast({ message: '비밀번호 변경 중 오류가 발생했습니다.', type: 'error' });
       setIsLoading(false);
     }
   };
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-5">
+        <div className="w-full max-w-sm text-center">
+          <p className="text-[var(--text)]">링크를 확인 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-5">
@@ -65,37 +75,22 @@ export default function LoginPage() {
           한입 링크
         </h1>
 
+        <h2 className="text-lg font-bold text-[var(--text)] text-center mb-8">
+          비밀번호 재설정
+        </h2>
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Input */}
-          <div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="이메일"
-              required
-              disabled={isLoading}
-              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
-              style={{
-                boxShadow: '0 0 0 2px transparent',
-              } as React.CSSProperties}
-              onFocus={(e) => {
-                if (!isLoading) e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
-              }}
-            />
-          </div>
-
           {/* Password Input */}
           <div>
+            <label className="block text-sm font-bold text-[var(--text)] mb-2">
+              새 비밀번호
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호"
+              placeholder="새 비밀번호를 입력하세요"
               required
               disabled={isLoading}
               className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
@@ -111,40 +106,40 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Login Button */}
+          {/* Confirm Password Input */}
+          <div>
+            <label className="block text-sm font-bold text-[var(--text)] mb-2">
+              비밀번호 확인
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="비밀번호를 다시 입력하세요"
+              required
+              disabled={isLoading}
+              className="w-full px-4 py-3.5 bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] rounded-xl focus:outline-none focus:bg-white transition-all disabled:opacity-50"
+              style={{
+                boxShadow: '0 0 0 2px transparent',
+              } as React.CSSProperties}
+              onFocus={(e) => {
+                if (!isLoading) e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+              }}
+            />
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={!isFormValid || isLoading}
+            disabled={!password || !confirmPassword || isLoading}
             className="w-full px-5 py-3.5 bg-[var(--accent)] text-white rounded-xl font-bold hover:opacity-90 transition-all mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '로그인 중...' : '로그인'}
+            {isLoading ? '변경 중...' : '비밀번호 변경'}
           </button>
         </form>
-
-        {/* Forgot Password Link */}
-        <div className="text-center mt-4">
-          <p className="text-[var(--text-sub)] text-sm">
-            <Link
-              href="/auth/forgot-password"
-              className="text-[var(--accent)] font-bold hover:opacity-80 transition-opacity"
-            >
-              비밀번호 찾기
-            </Link>
-          </p>
-        </div>
-
-        {/* Sign Up Link */}
-        <div className="text-center mt-4">
-          <p className="text-[var(--text-sub)] text-sm">
-            계정이 없으신가요?{' '}
-            <Link
-              href="/auth/signup"
-              className="text-[var(--accent)] font-bold hover:opacity-80 transition-opacity"
-            >
-              회원가입
-            </Link>
-          </p>
-        </div>
       </div>
 
       {/* Toast */}
