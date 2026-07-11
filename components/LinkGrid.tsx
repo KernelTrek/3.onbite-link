@@ -13,7 +13,7 @@ export default function LinkGrid({ folderId }: LinkGridProps) {
 
   const filteredLinks = useMemo(() => {
     if (!folderId) return links;
-    return links.filter(link => link.folder_id === folderId);
+    return links.filter(link => String(link.folder_id) === folderId);
   }, [links, folderId]);
 
   return (
