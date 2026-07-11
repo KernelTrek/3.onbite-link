@@ -57,6 +57,23 @@ export default function LoginPage() {
     }
   };
 
+  const handleKakaoLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setToast({ message: '카카오 로그인 중 오류가 발생했습니다.', type: 'error' });
+      }
+    } catch (error) {
+      setToast({ message: '카카오 로그인 중 오류가 발생했습니다.', type: 'error' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-5">
       <div className="w-full max-w-sm">
@@ -120,6 +137,25 @@ export default function LoginPage() {
             {isLoading ? '로그인 중...' : '로그인'}
           </button>
         </form>
+
+        {/* Kakao Login Button */}
+        <button
+          onClick={handleKakaoLogin}
+          disabled={isLoading}
+          className="w-full px-5 py-3.5 bg-[#FEE500] text-[#191919] rounded-xl font-bold hover:bg-[#FDD835] transition-all mt-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        >
+          {/* Kakao Talk Logo SVG */}
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 48 48"
+            fill="currentColor"
+            className="text-[#191919]"
+          >
+            <path d="M24 2C12.96 2 4 9.16 4 18c0 5.48 3.08 10.28 8 12.84V44l8.16-4.64C21.8 40.08 22.88 40.12 24 40.12c11.04 0 20-7.16 20-16s-8.96-16-20-16z" />
+          </svg>
+          <span>카카오로 로그인</span>
+        </button>
 
         {/* Forgot Password Link */}
         <div className="text-center mt-4">
