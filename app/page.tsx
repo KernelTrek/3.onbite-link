@@ -45,7 +45,7 @@ const mockLinks = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-black">
+    <div className="flex h-screen bg-[var(--bg)]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar folders={mockFolders} />

@@ -58,16 +58,16 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   if (!folder) {
     return (
-      <div className="flex flex-col h-screen bg-white dark:bg-black">
+      <div className="flex h-screen bg-[var(--bg)]">
         <Header />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar folders={mockFolders} />
-          <section className="flex-1 p-8 flex items-center justify-center">
+          <section className="flex-1 p-8 flex items-center justify-center" style={{ marginTop: '56px' }}>
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-bold text-[var(--text)]">
                 폴더를 찾을 수 없습니다
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-[var(--text-sub)] mt-2">
                 존재하지 않는 폴더입니다
               </p>
             </div>
@@ -78,16 +78,16 @@ export default async function FolderPage({ params }: FolderPageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-black">
+    <div className="flex h-screen bg-[var(--bg)]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar folders={mockFolders} currentFolderId={id} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-8 py-6 border-b border-gray-200 dark:border-zinc-800">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="px-6 py-5" style={{ marginTop: '56px' }}>
+            <h2 className="text-2xl font-bold text-[var(--text)]">
               {folder.name}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-[var(--text-sub)] mt-1 text-sm">
               {folderLinks.length}개의 링크
             </p>
           </div>

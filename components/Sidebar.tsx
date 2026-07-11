@@ -16,24 +16,23 @@ interface SidebarProps {
 export default function Sidebar({ folders = [], currentFolderId }: SidebarProps) {
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const isFolderPage = pathname.startsWith('/folder/');
 
   return (
-    <aside className="w-64 bg-gray-50 border-r border-gray-200 px-4 py-6 dark:bg-zinc-900 dark:border-zinc-800">
-      <div className="space-y-2">
+    <aside className="w-64 bg-[var(--bg)] px-5 py-6 overflow-y-auto" style={{ marginTop: '56px' }}>
+      <div className="space-y-1">
         <Link
           href="/"
-          className={`block w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`block w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
             isHome
-              ? 'bg-blue-500 text-white dark:bg-blue-600'
-              : 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700'
+              ? 'bg-[var(--accent)] text-white'
+              : 'text-[var(--text)] hover:bg-white'
           }`}
         >
           ALL
         </Link>
 
         <div className="pt-4">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase px-4 mb-2 dark:text-gray-400">
+          <h2 className="text-xs font-bold text-[var(--text-sub)] uppercase px-4 mb-3 tracking-wider">
             폴더
           </h2>
           <nav className="space-y-1">
@@ -42,17 +41,17 @@ export default function Sidebar({ folders = [], currentFolderId }: SidebarProps)
                 <Link
                   key={folder.id}
                   href={`/folder/${folder.id}`}
-                  className={`block w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                  className={`block w-full text-left px-4 py-2.5 rounded-xl transition-all ${
                     currentFolderId === folder.id
-                      ? 'bg-blue-500 text-white dark:bg-blue-600'
-                      : 'text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-zinc-800'
+                      ? 'bg-[var(--accent)] text-white'
+                      : 'text-[var(--text)] hover:bg-white'
                   }`}
                 >
                   {folder.name}
                 </Link>
               ))
             ) : (
-              <p className="px-4 py-2 text-sm text-gray-400 dark:text-gray-500">
+              <p className="px-4 py-2 text-sm text-[var(--text-sub)]">
                 폴더가 없습니다
               </p>
             )}

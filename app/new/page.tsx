@@ -10,14 +10,14 @@ const mockFolders = [
 
 export default function NewLinkPage() {
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-black">
+    <div className="flex h-screen bg-[var(--bg)]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar folders={mockFolders} />
-        <section className="flex-1 p-8 overflow-y-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">새 링크 추가</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">북마크할 새로운 링크를 추가해보세요</p>
+        <section className="flex-1 overflow-y-auto" style={{ marginTop: '56px' }}>
+          <div className="px-6 py-8">
+            <h2 className="text-2xl font-bold text-[var(--text)]">새 링크 추가</h2>
+            <p className="text-[var(--text-sub)] mt-1 text-sm">북마크할 새로운 링크를 추가해보세요</p>
           </div>
           <LinkForm folders={mockFolders} />
         </section>

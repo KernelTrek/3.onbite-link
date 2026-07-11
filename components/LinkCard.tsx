@@ -20,7 +20,8 @@ export default function LinkCard({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block p-4 rounded-lg border border-gray-200 bg-white hover:shadow-lg hover:border-gray-300 transition-all dark:bg-zinc-800 dark:border-zinc-700 dark:hover:border-zinc-600"
+      className="group block p-5 rounded-2xl bg-[var(--bg-card)] card-hover transition-all"
+      style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       <div className="flex items-start gap-3">
         {favicon && (
@@ -35,21 +36,21 @@ export default function LinkCard({
           />
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors dark:text-white dark:group-hover:text-blue-400">
+          <h3 className="font-bold text-[var(--text)] truncate group-hover:text-[var(--accent)] transition-colors">
             {title}
           </h3>
           {description && (
-            <p className="text-sm text-gray-600 line-clamp-2 mt-1 dark:text-gray-400">
+            <p className="text-sm text-[var(--text-sub)] line-clamp-2 mt-1">
               {description}
             </p>
           )}
-          <p className="text-xs text-gray-500 truncate mt-2 dark:text-gray-500">
+          <p className="text-xs text-[var(--text-sub)] truncate mt-2">
             {url}
           </p>
         </div>
       </div>
       {folder && (
-        <div className="mt-2 inline-block text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded dark:bg-zinc-700 dark:text-gray-300">
+        <div className="mt-3 inline-block text-xs bg-[#E8F3FF] text-[var(--accent)] px-3 py-1.5 rounded-lg font-medium">
           {folder}
         </div>
       )}

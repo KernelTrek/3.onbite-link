@@ -38,11 +38,11 @@ export default function LinkForm({ folders }: LinkFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-      <div className="space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-5 py-8">
+      <div className="space-y-5">
         {/* URL Input */}
         <div>
-          <label htmlFor="url" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label htmlFor="url" className="block text-base font-bold text-[var(--text)] mb-2">
             링크 주소
           </label>
           <input
@@ -52,13 +52,23 @@ export default function LinkForm({ folders }: LinkFormProps) {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com"
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all"
+            style={{
+              boxShadow: '0 0 0 2px transparent',
+              '--webkit-autofill': 'none',
+            } as React.CSSProperties}
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+            }}
           />
         </div>
 
         {/* Title Input */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label htmlFor="title" className="block text-base font-bold text-[var(--text)] mb-2">
             제목
           </label>
           <input
@@ -68,13 +78,19 @@ export default function LinkForm({ folders }: LinkFormProps) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="링크의 제목을 입력하세요"
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all"
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+            }}
           />
         </div>
 
         {/* Description Input */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label htmlFor="description" className="block text-base font-bold text-[var(--text)] mb-2">
             설명 (선택사항)
           </label>
           <textarea
@@ -83,13 +99,19 @@ export default function LinkForm({ folders }: LinkFormProps) {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="링크에 대한 설명을 입력하세요"
             rows={4}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:placeholder-gray-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] placeholder-[var(--placeholder)] focus:outline-none focus:bg-[var(--bg-card)] transition-all resize-none"
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+            }}
           />
         </div>
 
         {/* Folder Select */}
         <div>
-          <label htmlFor="folder" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          <label htmlFor="folder" className="block text-base font-bold text-[var(--text)] mb-2">
             폴더
           </label>
           <select
@@ -97,7 +119,13 @@ export default function LinkForm({ folders }: LinkFormProps) {
             value={folder}
             onChange={(e) => setFolder(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:focus:ring-blue-400"
+            className="w-full px-4 py-3.5 rounded-xl bg-[#F4F4F4] text-[var(--text)] focus:outline-none focus:bg-[var(--bg-card)] transition-all appearance-none"
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 0 2px transparent';
+            }}
           >
             <option value="">폴더를 선택하세요</option>
             {folders.map((f) => (
@@ -109,11 +137,11 @@ export default function LinkForm({ folders }: LinkFormProps) {
         </div>
 
         {/* Submit Button */}
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-600 dark:hover:bg-blue-700"
+            className="flex-1 px-6 py-3.5 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? '저장 중...' : '저장'}
           </button>
@@ -125,7 +153,7 @@ export default function LinkForm({ folders }: LinkFormProps) {
               setDescription('');
               setFolder('');
             }}
-            className="px-6 py-3 bg-gray-200 text-gray-900 rounded-lg font-medium hover:bg-gray-300 transition-colors dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+            className="px-6 py-3.5 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold transition-all hover:bg-white"
           >
             취소
           </button>
