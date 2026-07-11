@@ -1,12 +1,10 @@
+'use client';
+
+import { useParams } from 'next/navigation';
+import { useFolders } from '@/contexts/FoldersContext';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import LinkGrid from '@/components/LinkGrid';
-
-const mockFolders = [
-  { id: '1', name: '개발' },
-  { id: '2', name: '디자인' },
-  { id: '3', name: '뉴스' },
-];
 
 const mockLinks = [
   {
@@ -43,16 +41,14 @@ const mockLinks = [
   },
 ];
 
-interface FolderPageProps {
-  params: Promise<{ id: string }>;
-}
+export default function FolderPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const { folders } = useFolders();
 
-export default async function FolderPage({ params }: FolderPageProps) {
-  const { id } = await params;
-
-  const folder = mockFolders.find((f) => f.id === id);
+  const folder = folders.find((f) => f.id === id);
   const folderLinks = mockLinks.filter((link) => {
-    const folderName = mockFolders.find((f) => f.id === id)?.name;
+    const folderName = folders.find((f) => f.id === id)?.name;
     return link.folder === folderName;
   });
 
@@ -61,7 +57,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
       <div className="flex h-screen bg-[var(--bg)]">
         <Header />
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar folders={mockFolders} />
+          <Sidebar />
           <section className="flex-1 p-8 flex items-center justify-center" style={{ marginTop: '56px' }}>
             <div className="text-center">
               <h2 className="text-2xl font-bold text-[var(--text)]">
@@ -81,7 +77,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
     <div className="flex h-screen bg-[var(--bg)]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar folders={mockFolders} currentFolderId={id} />
+        <Sidebar currentFolderId={id} />
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="px-6 py-5" style={{ marginTop: '56px' }}>
             <h2 className="text-2xl font-bold text-[var(--text)]">

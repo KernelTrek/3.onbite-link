@@ -2,12 +2,6 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import LinkGrid from "@/components/LinkGrid";
 
-const mockFolders = [
-  { id: "1", name: "개발" },
-  { id: "2", name: "디자인" },
-  { id: "3", name: "뉴스" },
-];
-
 const mockLinks = [
   {
     id: "1",
@@ -48,7 +42,7 @@ export default function Home() {
     <div className="flex h-screen bg-[var(--bg)]">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar folders={mockFolders} />
+        <Sidebar />
         <LinkGrid links={mockLinks} />
       </div>
     </div>

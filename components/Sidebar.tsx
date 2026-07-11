@@ -2,18 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-interface Folder {
-  id: string;
-  name: string;
-}
+import { useFolders } from '@/contexts/FoldersContext';
 
 interface SidebarProps {
-  folders?: Folder[];
   currentFolderId?: string;
 }
 
-export default function Sidebar({ folders = [], currentFolderId }: SidebarProps) {
+export default function Sidebar({ currentFolderId }: SidebarProps) {
+  const { folders } = useFolders();
   const pathname = usePathname();
   const isHome = pathname === '/';
 
