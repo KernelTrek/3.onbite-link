@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useFolders } from '@/contexts/FoldersContext';
+import { createClient } from '@/utils/supabase/client';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import EditFolderModal from './EditFolderModal';
 
@@ -12,6 +13,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentFolderId }: SidebarProps) {
+  const router = useRouter();
+  const supabase = createClient();
   const { folders, deleteFolder, updateFolder } = useFolders();
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -52,10 +55,15 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
+
   return (
     <>
-      <aside className="w-64 bg-[var(--bg)] px-5 py-6 overflow-y-auto" style={{ marginTop: '56px' }}>
-        <div className="space-y-1">
+      <aside className="w-64 bg-[var(--bg)] px-5 py-6 overflow-y-auto flex flex-col" style={{ marginTop: '56px' }}>
+        <div className="space-y-1 flex-1">
           <Link
             href="/"
             className={`block w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
@@ -154,6 +162,14 @@ export default function Sidebar({ currentFolderId }: SidebarProps) {
             </nav>
           </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="w-full px-4 py-3 bg-[#F4F4F4] text-[var(--text)] rounded-xl font-bold hover:bg-white transition-all mt-4 border-t border-[#E8E8E8] pt-6"
+        >
+          로그아웃
+        </button>
       </aside>
 
       {folderToDelete && (
